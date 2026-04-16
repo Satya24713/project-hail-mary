@@ -1,8 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -50,7 +55,15 @@ app.post("/api/messages", async (req, res) => {
   }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`NVIDIA API server running on http://localhost:${PORT}`);
+// Serve the static React buildup
+app.use(express.static(path.join(__dirname, "dist")));
+
+// SPA fallback for React Router
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server and API running on port ${PORT}`);
 });
