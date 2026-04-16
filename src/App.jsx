@@ -394,7 +394,7 @@ export default function AlienDecoder() {
         background: "rgba(2,4,8,0.9)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <button onClick={() => { setPhase("select"); setMessages([]); setDecoded({}); }} style={{
+          <button onClick={() => { setPhase("select"); setSelectedLang(null); setMessages([]); setDecoded({}); }} style={{
             background: "none", border: "1px solid rgba(58,159,255,0.2)", color: "#3a9fff",
             padding: "0.25rem 0.75rem", borderRadius: "4px", cursor: "pointer", fontSize: "0.7rem", letterSpacing: "0.1em",
           }}>← ABORT</button>
