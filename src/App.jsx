@@ -34,7 +34,12 @@ The human's hypothesis: "${hypothesis}"
 Respond in plain English (this is a meta-hint, outside the game):
 - Is this hypothesis correct, partially correct, or wrong?
 - Give a 1-sentence linguistic insight that helps without fully spoiling it.
-- Keep it under 40 words. Be like a scientist confirming a finding — precise, not verbose.`;
+- Keep it under 40 words. Be like a scientist confirming a finding — precise, not verbose.
+- IMPORTANT: If the hypothesis is Correct or Partially Correct and definitively identifies a specific word/phrase and its exact English meaning, append a JSON block to the VERY END of your response strictly formatted like this:
+\`\`\`json
+{"word": "the_alien_word", "meaning": "english target meaning"}
+\`\`\`
+If it is wrong, omit the JSON block.`;
 
 
 export default function AlienDecoder() {
@@ -128,7 +133,7 @@ export default function AlienDecoder() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: selectedModel,
+          model: "openai/gpt-oss-120b",
           messages: apiMessages,
         }),
       });
@@ -166,7 +171,20 @@ export default function AlienDecoder() {
       });
       const data = await response.json();
       const text = data.content?.[0]?.text || "";
-      setHintResult(text);
+      
+      let cleanText = text;
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[1]);
+          if (parsed.word && parsed.meaning) {
+            setDecoded(prev => ({ ...prev, [parsed.word]: parsed.meaning }));
+          }
+        } catch(e) {}
+        cleanText = text.replace(jsonMatch[0], "").trim();
+      }
+
+      setHintResult(cleanText);
     } catch (err) {
       setHintResult("Failed to verify hypothesis due to connection error.");
     }
